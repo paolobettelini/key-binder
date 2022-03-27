@@ -3,10 +3,6 @@ use x11::xlib;
 use std::os::raw::{c_int, c_uint};
 use std::ptr;
 
-pub unsafe fn grab_without_mask(display: *mut xlib::Display, root: xlib::Window, key: c_uint) {
-    grab_with_mask(display, root, key, 0 as c_uint);
-}
-
 pub unsafe fn grab_with_mask(display: *mut xlib::Display, root: xlib::Window, key: c_uint, mask: c_uint) {
     let key = key as xlib::KeySym;
     let keycode = xlib::XKeysymToKeycode(display, key) as c_int;
