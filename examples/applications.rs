@@ -9,22 +9,32 @@ fn main() {
 
     // Press Home to open 'konsole'
     // Press End to open 'firefox'
+    // Press Mod4+Enter to open 'rofi'
 
-    handler.always_ignore(vec![LOCK_MASK, MOD2_MASK, MOD3_MASK, MOD5_MASK]);
+    handler.always_ignore(vec![LOCK_MASK, MOD2_MASK, MOD3_MASK]);
 
-    handler.register(keysym::XK_End, Trigger::Press, vec![], open_firefox);
-
-    handler.register(keysym::XK_Home, Trigger::Press, vec![], open_konsole);
+    handler.register(keysym::XK_End, Trigger::Press, vec![], start_firefox);
+    handler.register(keysym::XK_Home, Trigger::Press, vec![], start_konsole);
+    handler.register(keysym::XK_Return, Trigger::Press, vec![MOD4_MASK], start_rofi);
 
     handler.listen();
 }
 
-fn open_firefox() {
+fn start_firefox() {
     let _ = Command::new("firefox").output();
 }
 
-fn open_konsole() {
+fn start_konsole() {
     thread::spawn(|| {
         let _ = Command::new("konsole").output();
+    });
+}
+
+fn start_rofi() {
+    thread::spawn(|| {
+        let _ = Command::new("rofi")
+            .arg("-show")
+            .arg("run")
+            .output();
     });
 }
