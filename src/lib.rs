@@ -12,9 +12,11 @@ mod combinatory;
 
 // https://tronche.com/gui/x/xlib/events/keyboard-pointer/keyboard-pointer.html
 
-//pub const NoMask: c_uint = xlib::NoEventMask;
+// https://www.cl.cam.ac.uk/~mgk25/ucs/keysymdef.h
+
 pub type Mask = c_uint;
 
+//pub const NoMask: Mask = xlib::NoEventMask;
 pub const SHIFT_MASK: Mask = xlib::ShiftMask;
 pub const LOCK_MASK: Mask = xlib::LockMask;
 pub const CTRL_MASK: Mask = xlib::ControlMask;
@@ -24,7 +26,7 @@ pub const MOD3_MASK: Mask = xlib::Mod3Mask;
 pub const MOD4_MASK: Mask = xlib::Mod4Mask;
 pub const MOD5_MASK: Mask = xlib::Mod5Mask;
 
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash, Copy)]
 pub enum Trigger {
     Press,
     Release
@@ -43,15 +45,15 @@ impl Trigger {
 }
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
-struct Binding<'a> {
+struct Binding {
     pub key: c_uint,
-    pub trigger: &'a Trigger,
+    pub trigger: Trigger,
     pub mask: c_uint,
 }
 
-impl<'a> Binding<'a> {
+impl Binding {
 
-    pub fn new(key: c_uint, trigger: &'a Trigger, mask: c_uint) -> Self {
+    pub fn new(key: c_uint, trigger: Trigger, mask: c_uint) -> Self {
         Binding {
             key: key,
             trigger: trigger,
@@ -61,15 +63,15 @@ impl<'a> Binding<'a> {
 
 }
 
-pub struct KeyBinder<'a> {
+pub struct KeyBinder {
     display: *mut xlib::Display,
     root: xlib::Window,
     always_ignore: c_uint,
-    press_bindings: HashMap<Binding<'a>, fn() -> ()>,
-    release_bindings: HashMap<Binding<'a>, fn() -> ()>,
+    press_bindings: HashMap<Binding, fn() -> ()>,
+    release_bindings: HashMap<Binding, fn() -> ()>,
 }
 
-impl<'a> KeyBinder<'a> {
+impl KeyBinder {
 
     pub fn new() -> Self {
         unsafe {
@@ -93,7 +95,7 @@ impl<'a> KeyBinder<'a> {
     }
 
 
-    pub fn register<'b: 'a>(&mut self, key: c_uint, trigger: &'b Trigger, masks: Vec<c_uint>, callback: fn() -> ()) {
+    pub fn register(&mut self, key: c_uint, trigger: Trigger, masks: Vec<c_uint>, callback: fn() -> ()) {
         let mask = compact(&masks);
 
         // Register to all combinations of always_ignore_mask (+ the actual mask)
@@ -134,7 +136,7 @@ impl<'a> KeyBinder<'a> {
             // Remove ignored masks
             mask &= !self.always_ignore;
 
-            let binding = Binding::new(key, &trigger, mask);
+            let binding = Binding::new(key, trigger, mask);
 
             let callback = match event_type {
                 xlib::KeyPress => self.press_bindings.get(&binding),

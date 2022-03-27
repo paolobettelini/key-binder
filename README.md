@@ -22,7 +22,11 @@ fn main() {
 
     handler.always_ignore(vec![LOCK_MASK, MOD2_MASK, MOD3_MASK, MOD5_MASK]);
 
-    handler.register(keysym::XK_F, &Trigger::Release, vec![SHIFT_MASK, CTRL_MASK], shift_ctrl_f);
+    handler.register(
+        keysym::XK_F,
+        Trigger::Press,
+        vec![SHIFT_MASK, CTRL_MASK],
+        shift_ctrl_f);
 
     handler.listen();
 }

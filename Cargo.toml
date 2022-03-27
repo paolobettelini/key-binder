@@ -17,3 +17,7 @@ features = ["xlib"]
 [[example]]
 name = "simple"
 path = "./examples/simple.rs"
+
+[[example]]
+name = "applications"
+path = "./examples/applications.rs"
