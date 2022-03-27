@@ -1,0 +1,19 @@
+[package]
+name = "keybinder"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "keybinder"
+path = "./src/lib.rs"
+
+[dependencies]
+fnv = "1.0"
+
+[dependencies.x11]
+version = "2.18.1"
+features = ["xlib"]
+
+[[example]]
+name = "simple"
+path = "./examples/simple.rs"
